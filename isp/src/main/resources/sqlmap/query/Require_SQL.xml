@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.open.Require">
+
+	<sql id="Where">
+		<if test="searchKeyword !=null and searchKeyword !=''">
+			<if test="searchCondition !=null and searchCondition !='' and searchCondition ==0">
+				AND (RE_TITLE LIKE CONCAT('%',#{searchKeyword},'%') OR RE_CONT like CONCAT('%',#{searchKeyword},'%'))
+			</if>
+			<if test="searchCondition !=null and searchCondition !='' and searchCondition ==1">
+				AND RE_TITLE LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+			<if test="searchCondition !=null and searchCondition !='' and searchCondition ==2">
+				AND RE_CONT LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+	 	</if>
+	 	
+	 		<if test="schEtc01 !=null and schEtc01 !='' and schEtc01 ==1">
+				AND NULLIF(RE_ATCH_FILE_ID,'') IS NOT NULL
+			</if>
+			<if test="schEtc01 !=null and schEtc01 !='' and schEtc01 ==2">
+				AND NULLIF(RE_ATCH_FILE_ID,'') IS NULL
+			</if>
+			
+			<if test="schEtc02 !=null and schEtc02 !='' and schEtc02 ==1">
+				AND RE_SECRET_YN = 'Y'
+			</if>
+			<if test="schEtc02 !=null and schEtc02 !='' and schEtc02 ==2">
+				AND RE_SECRET_YN = 'N'
+			</if>
+			
+			<if test="schEtc03 !=null and schEtc03 !='' and schEtc03 ==1">
+				AND RE_SELECT = 'submit'
+			</if>
+			<if test="schEtc03 !=null and schEtc03 !='' and schEtc03 ==2">
+				AND RE_SELECT = 'agree'
+			</if>
+			<if test="schEtc03 !=null and schEtc03 !='' and schEtc03 ==3">
+				AND RE_SELECT = 'deny'
+			</if>
+			<if test="schEtc03 !=null and schEtc03 !='' and schEtc03 ==4">
+				AND RE_SELECT = 'reSubmit'
+			</if>
+			
+		
+	</sql>
+	
+	<select id="selectContents" parameterType="requireVO" resultType="requireVO">
+		/* Require.selectContents */
+		<![CDATA[
+			 SELECT  
+				  RE_SEQ 												reSeq
+				, RE_TITLE 											reTitle
+				, RE_CONT									 		reCont
+				, DATE_FORMAT(RE_RGST_DT,'%Y.%m.%d') reRgstDt
+				, FT_USER_NM(RE_RGST_ID) 			reRgstId
+				, RE_ATCH_FILE_ID 							reAtchFileId
+				, RE_VIEW 											reView
+				, MA_CONT 											maCont
+				, RE_SELECT 										reSelect
+				, RE_SECRET_YN 								reSecretYn
+				, RE_PWD 												rePwd
+				
+		     FROM  t_kim_require 
+			 WHERE  RE_USE_YN		='Y'	
+				 AND RE_SEQ 		= #{reSeq}
+		]]>
+	</select>
+<!-- 	모달 비밀번호확인 -->
+	<select id="checkModalPw" parameterType="requireVO" resultType="requireVO">
+		/* Require.checkModalPw */
+		<![CDATA[
+			 SELECT  
+				  RE_SEQ 												reSeq
+				
+		     FROM  t_kim_require 
+			 WHERE  RE_USE_YN		='Y'	
+			 	 AND RE_SEQ 		= #{reSeq}
+				 AND RE_PWD 		= #{rePwd}
+		]]>
+	</select>
+	
+	
+	
+	<select id="selectList" parameterType="cmmnDefaultVO" resultType="requireVO">
+		/* Require.selectList */
+		<![CDATA[
+      	     SELECT  
+				  RE_SEQ 									reSeq
+				, RE_TITLE 								reTitle
+				, RE_CONT								reCont
+				, DATE_FORMAT(RE_RGST_DT,'%Y.%m.%d') reRgstDt
+				, FT_USER_NM(RE_RGST_ID) reRgstId
+				, RE_ATCH_FILE_ID 				reAtchFileId
+				, RE_VIEW 								reView
+				, RE_SELECT 							reSelect
+				, RE_SECRET_YN 					reSecretYn
+				
+		     FROM t_kim_require 
+			 WHERE RE_USE_YN='Y'	
+	      ]]>
+		     <include refid="Where"/>	 
+	     <![CDATA[ 
+	    		ORDER BY RE_SEQ DESC
+				LIMIT  #{firstIndex} , #{recordCountPerPage}
+		]]>
+	</select>	
+
+
+	<select id="selectCount" parameterType="cmmnDefaultVO" resultType="int">
+		/* Require.selectCount */
+		<![CDATA[
+			SELECT 
+				COUNT(RE_SEQ) 		cnt 
+				
+			FROM t_kim_require
+			WHERE RE_USE_YN='Y' 
+		]]>
+			 <include refid="Where"/>
+	</select>
+	
+<!-- 	insert 는 신청  -->
+	<insert id="insertContents" parameterType="requireVO">
+		/* Require.insertContents */
+		<![CDATA[
+			INSERT INTO t_kim_require(
+           	  	  RE_SEQ 
+				, RE_TITLE 
+				, RE_CONT
+				, RE_RGST_ID 
+				, RE_ATCH_FILE_ID 
+				, RE_VIEW
+				, RE_SELECT 										
+				, RE_SECRET_YN 								
+				, RE_PWD 												
+			)
+			VALUES (
+				 (SELECT IFNULL(MAX(TS.RE_SEQ)+1,1) FROM t_kim_require TS)
+				,#{reTitle}
+				,#{reCont}
+				,#{reRgstId}
+				,#{reAtchFileId}
+				,0
+				,'submit'
+				,#{reSecretYn}
+				,#{rePwd}
+			)
+		]]>
+	</insert>
+	
+	<update id="updateContents" parameterType="requireVO">
+		/* Require.updateContents */
+		<![CDATA[
+			UPDATE t_kim_require     
+			 SET 
+				  RE_TITLE 							= #{reTitle} 
+				, RE_CONT 							= #{reCont}
+				, RE_RVSE_DT 					= NOW()
+				, RE_ATCH_FILE_ID			= #{reAtchFileId}
+				, RE_SECRET_YN 				= #{reSecretYn}				
+				, RE_PWD 								= #{rePwd}				
+				]]>
+				<if test="reSelect = 'deny'">
+				, RE_SELECT 						= 'reSubmit'		
+				</if>		
+				<![CDATA[
+			WHERE  RE_SEQ = #{reSeq}  
+		]]>
+	</update>
+	
+<!-- 	관리자 답글  -->
+		<update id="maContUpdate" parameterType="requireVO">
+		/* Require.maContUpdate */
+		<![CDATA[
+			UPDATE t_kim_require     
+			 SET 
+				  MA_CONT 							= #{maCont} 
+				, RE_SELECT 						= #{reSelect}				
+				
+			WHERE  RE_SEQ = #{reSeq}  
+		]]>
+	</update>
+	
+<!-- 	조회수 -->
+	<update id="viewCount" parameterType="requireVO">
+		/* Require.viewCount */
+		<![CDATA[
+			UPDATE t_kim_require     
+			 SET 
+				  RE_VIEW 							= RE_VIEW+1 
+				
+			WHERE  RE_SEQ = #{reSeq}  
+		]]>
+	</update>
+	
+	<update id="deleteContents" parameterType="requireVO">
+		/* Require.deleteContents */
+		<![CDATA[
+			UPDATE t_kim_require
+		       SET
+	          	 RE_USE_YN			='N'
+			WHERE RE_SEQ				=#{reSeq}
+		]]>
+	</update>
+
+
+	
+	
+	
+	
+</mapper>

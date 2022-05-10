@@ -1,0 +1,81 @@
+<%@ page contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<jsp:directive.include file="/WEB-INF/jsp/cmmn/incTagLib.jsp"/>
+<script type="text/javascript" src="/publish/ma/js/board.js"></script>
+
+<div class="content_box">
+	<form:form commandName="searchVO" name="defaultFrm" id="defaultFrm" method="post">
+		<form:hidden path="reSeq" id="reSeq"/>
+		<form:hidden path="pageIndex" id="pageIndex"/> 
+		<form:hidden path="reAtchFileId" id="reAtchFileId"/>
+		<jsp:directive.include file="/WEB-INF/jsp/cmmn/inc/incSearchForm.jsp"/>
+		<!-- tbl -->
+		<div class="tbl_wrap">
+			<table class="tbl_row_type01">
+				<caption>내용(제목, 작성자, 작성일 등으로 구성)</caption>
+				<colgroup>
+					<col style="width:15%;">
+					<col style="width:35%;">
+					<col style="width:15%;">
+					<col style="width:35%;">
+				</colgroup>
+				<tbody>
+				
+					<tr>
+						<th scope="row"><strong>등록자</strong></th>
+						<td>
+							${requireVO.reRgstId }
+						</td>
+	                    <th scope="row"><strong>등록일</strong></th>
+						<td>${requireVO.reRgstDt }</td>
+					</tr> 
+					
+					<tr>
+						<th scope="row"><strong>제목</strong></th>
+						<td colspan="3">
+								${requireVO.reTitle }
+						</td>
+					</tr>
+					
+					<tr>
+						<th scope="row"><strong>진행상황</strong></th>
+						<td colspan="3">
+								${requireVO.reSelect eq 'submit' ? '신청' : '' }
+								${requireVO.reSelect eq 'agree' ? '승인' : '' }
+								${requireVO.reSelect eq 'deny' ? '반려' : '' }
+								${requireVO.reSelect eq 'reSubmit' ? '재신청' : '' }
+						</td>
+					</tr>
+					
+					<tr>
+						<th scope="row"><strong>글구분</strong></th>
+						<td colspan="3">
+								${requireVO.reSecretYn eq 'Y' ? '비밀글' : '일반글'}
+						</td>
+					</tr>
+					
+					<tr>
+						<th scope="row"><strong>내용</strong></th>
+						<td colspan="3">
+							<div class="text_area">
+								<c:out value="${util:unEscape(requireVO.reCont)}" escapeXml="false"/>
+							</div>
+						</td>
+					</tr>
+					
+					<tr>
+						<th scope="row"><strong>첨부파일</strong></th>
+						<td colspan="3">
+							<iframe name="reAtchFileIdFrame" id="reAtchFileIdFrame" src="/atch/fileUpload.do?atchFileId=${requireVO.reAtchFileId }&fileCnt=5&atchFileIdNm=reAtchFileId&updateType=view" style="width: 100%;"  frameborder="0" title="파일 업로드 폼"></iframe>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+			<div class="tbl_btns  r">
+			<a href="#" class="btn btn_middle btn_purple" onclick="fncPageBoard('write','/ft/user/require/updateForm.do');">수정</a>
+			<a href="#" class="btn btn_middle btn_red" onclick="fncPageBoard('view','/ft/user/require/deleteProc.do');">삭제</a>
+			<a href="#" class="btn btn_middle btn_gray" onclick="fncPageBoard('view','/ft/user/board/list.do');">목록</a>
+		</div>
+	</form:form>
+</div>

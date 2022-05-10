@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.open.Join">
+
+	<sql id="Where">
+		<if test="searchKeyword !=null and searchKeyword !=''">
+			<if test="searchCondition !=null and searchCondition !='' and searchCondition ==0">
+				AND (FT_TITLE LIKE CONCAT('%',#{searchKeyword},'%') OR FT_CONT like CONCAT('%',#{searchKeyword},'%'))
+			</if>
+			<if test="searchCondition !=null and searchCondition !='' and searchCondition ==1">
+				AND FT_TITLE LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+			<if test="searchCondition !=null and searchCondition !='' and searchCondition ==2">
+				AND FT_CONT LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+	 	</if>
+	 	
+	 	<if test="schEtc01 !=null and schEtc01 !='' and schEtc01 ==1">
+				AND NULLIF(FT_ATCH_FILE_ID,'') IS NOT NULL
+			</if>
+			<if test="schEtc01 !=null and schEtc01 !='' and schEtc01 ==2">
+				AND NULLIF(FT_ATCH_FILE_ID,'') IS NULL
+			</if>
+	</sql>
+	
+	<select id="selectContents" parameterType="ftJoinVO" resultType="ftJoinVO">
+		/* FtJoin.selectContents */
+		<![CDATA[
+			 SELECT  
+				  FT_SEQ 												ftSeq
+				, DATE_FORMAT(FT_RGST_DT,'%Y.%m.%d') ftRgstDt
+				, FT_USER_NM(FT_RGST_ID) 			ftRgstId
+				, FT_ATCH_FILE_ID 							ftAtchFileId
+				, FT_ID 													ftId
+				, FT_PWD 												ftPwd
+				, FT_NAME 											ftName
+				, FT_EMAIL 											ftEmail
+				
+		     FROM  t_ft_usertable 
+			 WHERE  FT_USE_YN		='Y'	
+				 AND FT_ID 		= #{ftId}
+				 AND FT_PWD 		= #{ftPwd}
+		]]>
+	</select>
+	
+	
+<!-- 	아이디중복체크 / 마이페이지 select -->
+	<select id="checkIdDup2" parameterType="ftJoinVO" resultType="ftJoinVO">
+		/* FtJoin.checkIdDup2 */
+		<![CDATA[
+			 SELECT  
+				  FT_SEQ 												ftSeq
+				, DATE_FORMAT(FT_RGST_DT,'%Y.%m.%d') ftRgstDt
+				, FT_USER_NM(FT_RGST_ID) 			ftRgstId
+				, FT_ATCH_FILE_ID 							ftAtchFileId
+				, FT_ID 													ftId
+				, FT_PWD 												ftPwd
+				, FT_NAME 											ftName
+				, FT_EMAIL 											ftEmail
+				, FT_HP													ftHp
+				
+		     FROM  t_ft_usertable 
+			 WHERE  FT_USE_YN		='Y'	
+				 AND FT_ID 		= #{ftId}
+		]]>
+	</select>
+	
+	<!-- 	비밀번호 일치 확인 -->
+	<select id="pwCheck2" parameterType="ftJoinVO" resultType="ftJoinVO">
+		/* FtJoin.pwCheck2 */
+		<![CDATA[
+			 SELECT  
+				  FT_SEQ 												ftSeq
+				, DATE_FORMAT(FT_RGST_DT,'%Y.%m.%d') ftRgstDt
+				, FT_USER_NM(FT_RGST_ID) 			ftRgstId
+				, FT_ATCH_FILE_ID 							ftAtchFileId
+				, FT_ID 													ftId
+				, FT_PWD 												ftPwd
+				, FT_NAME 											ftName
+				, FT_EMAIL 											ftEmail
+				
+		     FROM  t_ft_usertable 
+			 WHERE  FT_USE_YN		='Y'	
+				 AND FT_PWD 		= #{ftPwd}
+		]]>
+	</select>
+	
+	<!-- 	회원가입 아이디,비밀번호 체크  -->
+	<select id="loginCheck2" parameterType="ftJoinVO" resultType="ftJoinVO">
+		/* FtJoin."loginCheck2" */
+		<![CDATA[
+			 SELECT  
+				  FT_SEQ 												ftSeq
+				
+		     FROM  t_ft_usertable 
+			 WHERE  FT_USE_YN		='Y'	
+				 AND FT_ID 		= #{ftId}
+				 AND FT_PWD 		= #{ftPwd}
+		]]>
+	</select>
+	
+	<!-- 	아이디 찾기   -->
+	<select id="btnFindId2" parameterType="ftJoinVO" resultType="ftJoinVO">
+		/* FtJoin."btnFindId2" */
+		<![CDATA[
+			 SELECT  
+				  FT_ID 												ftId
+				
+		     FROM  t_ft_usertable 
+			 WHERE  FT_USE_YN		='Y'	
+				 AND FT_NAME 		= #{ftName}
+				 AND FT_EMAIL 		= #{ftEmail}
+		]]>
+	</select>
+	
+	<!-- 	비밀번호 찾기   -->
+	<select id="btnFindPw2" parameterType="ftJoinVO" resultType="ftJoinVO">
+		/* FtJoin."btnFindPw2" */
+		<![CDATA[
+			 SELECT  
+				  FT_SEQ 												ftSeq
+				
+		     FROM  t_ft_usertable 
+			 WHERE  FT_USE_YN		='Y'	
+				 AND FT_NAME 		= #{ftName}
+				 AND FT_EMAIL 		= #{ftEmail}
+				 AND FT_ID 		= #{ftId}
+		]]>
+	</select>
+	
+	
+	
+	
+	
+	<select id="selectList" parameterType="cmmnDefaultVO" resultType="ftJoinVO">
+		/* FtJoin.selectList */
+		<![CDATA[
+      	     SELECT  
+				  FT_SEQ 									ftSeq
+				, DATE_FORMAT(FT_RGST_DT,'%Y.%m.%d') ftRgstDt
+				, FT_USER_NM(FT_RGST_ID) ftRgstId
+				, FT_ATCH_FILE_ID 				ftAtchFileId
+				, FT_ID 													ftId
+				, FT_PWD 												ftPwd
+				, FT_NAME 											ftName
+				, FT_EMAIL 											ftEmail
+				
+		     FROM t_ft_usertable 
+			 WHERE FT_USE_YN='Y'	
+	      ]]>
+		     <include refid="Where"/>	 
+	     <![CDATA[ 
+	    		ORDER BY FT_SEQ DESC
+				LIMIT  #{firstIndex} , #{recordCountPerPage}
+		]]>
+	</select>	
+
+
+	<select id="selectCount" parameterType="cmmnDefaultVO" resultType="int">
+		/* FtJoin.selectCount */
+		<![CDATA[
+			SELECT 
+				COUNT(FT_SEQ) 		cnt 
+				
+			FROM t_ft_usertable
+			WHERE FT_USE_YN='Y' 
+		]]>
+			 <include refid="Where"/>
+	</select>
+	
+	<insert id="insertContents" parameterType="ftJoinVO">
+		/* FtJoin.insertContents */
+		<![CDATA[
+			INSERT INTO t_ft_usertable(
+           	  	  FT_SEQ 
+				, FT_RGST_ID 
+				, FT_ATCH_FILE_ID 
+				, FT_ID 													
+				, FT_PWD 												
+				, FT_NAME 											
+				, FT_EMAIL 											
+				, FT_HP									
+			)
+			VALUES (
+				 (SELECT IFNULL(MAX(TS.FT_SEQ)+1,1) FROM t_ft_usertable TS)
+				,#{ftRgstId}
+				,#{ftAtchFileId}
+				,#{ftId}
+				,#{ftPwd}
+				,#{ftName}
+				,#{ftEmail}
+				,#{ftHp}
+			)
+		]]>
+	</insert>
+	
+	<update id="updateContents" parameterType="ftJoinVO">
+		/* FtJoin.updateContents */
+		<![CDATA[
+			UPDATE t_ft_usertable     
+			 SET 
+				FT_RVSE_DT 					= NOW()
+				, FT_ATCH_FILE_ID			= #{ftAtchFileId}
+				, FT_ID 									= #{ftId}				
+				, FT_PWD 								= #{ftPwd}				
+				, FT_NAME 							= #{ftName}				
+				, FT_EMAIL 							= #{ftEmail}				
+				
+			WHERE  FT_SEQ = #{ftSeq}  
+		]]>
+	</update>
+<!-- 	마이페이지 정보수정 -->
+	<update id="myPageUpdate2" parameterType="ftJoinVO">
+		/* FtJoin.myPageUpdate2 */
+		<![CDATA[
+			UPDATE t_ft_usertable     
+			 SET 
+				FT_RVSE_DT 					= NOW()
+				, FT_ATCH_FILE_ID			= #{ftAtchFileId}
+				, FT_ID 									= #{ftId}				
+				, FT_NAME 							= #{ftName}				
+				, FT_EMAIL 							= #{ftEmail}				
+				, FT_HP 									= #{ftHp}		
+			]]>	
+			<if test="ftPwd != '' ">
+				, FT_PWD 								= #{ftPwd}	
+			</if>				
+			<![CDATA[	
+			WHERE  FT_ID = #{ftId}  
+		]]>
+	</update>
+	
+<!-- 	비밀번호수정 -->
+	<update id="btnUpdatePw2" parameterType="ftJoinVO">
+		/* FtJoin.btnUpdatePw2 */
+		<![CDATA[
+			UPDATE t_ft_usertable     
+			 SET 
+				 FT_PWD 								= #{ftPwd}				
+				
+			WHERE  FT_ID = #{ftId}  
+		]]>
+	</update>
+
+	
+	<update id="deleteContents" parameterType="ftJoinVO">
+		/* FtJoin.deleteContents */
+		<![CDATA[
+			UPDATE t_ft_usertable
+		       SET
+	          	 FT_USE_YN			='N'
+			WHERE FT_SEQ				=#{ftSeq}
+		]]>
+	</update>
+
+
+	
+	
+	
+	
+</mapper>

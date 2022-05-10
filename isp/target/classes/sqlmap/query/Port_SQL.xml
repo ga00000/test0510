@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.open.Port">
+
+	<sql id="Where">
+		<if test="searchKeyword !=null and searchKeyword !=''">
+			<if test="searchCondition !=null and searchCondition !='' and searchCondition ==0">
+				AND (PT_TITLE LIKE CONCAT('%',#{searchKeyword},'%') OR PT_CONT like CONCAT('%',#{searchKeyword},'%'))
+			</if>
+			<if test="searchCondition !=null and searchCondition !='' and searchCondition ==1">
+				AND PT_TITLE LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+			<if test="searchCondition !=null and searchCondition !='' and searchCondition ==2">
+				AND PT_CONT LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+	 	</if>
+	 	
+	 		<if test="schEtc01 !=null and schEtc01 !='' and schEtc01 ==1">
+				AND NULLIF(PT_ATCH_FILE_ID,'') IS NOT NULL
+			</if>
+			<if test="schEtc01 !=null and schEtc01 !='' and schEtc01 ==2">
+				AND NULLIF(PT_ATCH_FILE_ID,'') IS NULL
+			</if>
+			
+			<if test="schEtc02 !=null and schEtc02 !='' and schEtc02 ==1">
+				AND PT_SELECT= "case"
+			</if>
+			<if test="schEtc02 !=null and schEtc02 !='' and schEtc02 ==2">
+				AND PT_SELECT= "design"
+			</if>
+			<if test="schEtc02 !=null and schEtc02 !='' and schEtc02 ==3">
+				AND PT_SELECT= "place"
+			</if>
+			<if test="schEtc02 !=null and schEtc02 !='' and schEtc02 ==4">
+				AND PT_SELECT= "interior"
+			</if>
+	</sql>
+	
+	<select id="selectContents" parameterType="portVO" resultType="portVO">
+		/* Port.selectContents */
+		<![CDATA[
+			 SELECT  
+				  PT_SEQ 												ptSeq
+				, PT_TITLE 											ptTitle
+				, PT_CONT									 		ptCont
+				, DATE_FORMAT(PT_RGST_DT,'%Y.%m.%d') ptRgstDt
+				, F_USER_NM(PT_RGST_ID) 			ptRgstId
+				, PT_ATCH_FILE_ID 							ptAtchFileId
+				, PT_VIEW 											ptView
+				, PT_SELECT 										ptSelect
+				
+		     FROM  t_kim_port 
+			 WHERE  PT_USE_YN		='Y'	
+				 AND PT_SEQ 		= #{ptSeq}
+		]]>
+	</select>
+<!-- 	사용자 -->
+	<select id="userSelectContents" parameterType="portVO" resultType="portVO">
+		/* Port.userSelectContents */
+		<![CDATA[
+			 SELECT  
+				  PT_SEQ 												ptSeq
+				, PT_TITLE 											ptTitle
+				, PT_CONT									 		ptCont
+				, DATE_FORMAT(PT_RGST_DT,'%Y.%m.%d') ptRgstDt
+				, F_USER_NM(PT_RGST_ID) 			ptRgstId
+				, PT_ATCH_FILE_ID 							ptAtchFileId
+				, PT_VIEW 											ptView
+				, PT_SELECT 										ptSelect
+				
+		     FROM  t_kim_port 
+			 WHERE  PT_USE_YN		='Y'	
+				 AND PT_SELECT 		= #{schEtc02}
+				  AND PT_SEQ 		= #{ptSeq}
+		]]>
+	</select>
+	
+<select id="selectList" parameterType="cmmnDefaultVO" resultType="portVO">
+		/* Port.selectList */
+		<![CDATA[
+      	     SELECT  
+				  PT_SEQ 									ptSeq
+				, PT_TITLE 								ptTitle
+				, PT_CONT								ptCont
+				, DATE_FORMAT(PT_RGST_DT,'%Y.%m.%d') ptRgstDt
+				, F_USER_NM(PT_RGST_ID) ptRgstId
+				, PT_ATCH_FILE_ID 				ptAtchFileId
+				, PT_VIEW 								ptView
+				, PT_SELECT 								ptSelect
+				
+		     FROM t_kim_port 
+			 WHERE PT_USE_YN='Y'	
+	      ]]>
+		     <include refid="Where"/>	 
+	     <![CDATA[ 
+	    		ORDER BY PT_SEQ DESC
+				LIMIT  #{firstIndex} , #{recordCountPerPage}
+		]]>
+	</select>		
+	
+<!-- 	사용자 -->
+	<select id="userSelectList" parameterType="cmmnDefaultVO" resultType="portVO">
+		/* Port.userSelectList */
+		<![CDATA[
+      	     SELECT  
+				  PT_SEQ 									ptSeq
+				, PT_TITLE 								ptTitle
+				, PT_CONT								ptCont
+				, DATE_FORMAT(PT_RGST_DT,'%Y.%m.%d') ptRgstDt
+				, F_USER_NM(PT_RGST_ID) ptRgstId
+				, PT_ATCH_FILE_ID 				ptAtchFileId
+				, PT_VIEW 								ptView
+				, PT_SELECT 								ptSelect
+				
+		     FROM t_kim_port 
+			 WHERE PT_USE_YN='Y'	
+			 	AND PT_SELECT 		= #{schEtc02}
+	    		ORDER BY PT_SEQ DESC
+				LIMIT  #{firstIndex} , #{recordCountPerPage}
+		]]>
+	</select>	
+
+<!-- 	메인 사용자 -->
+	<select id="userMainSelectList" parameterType="cmmnDefaultVO" resultType="portVO">
+		/* Port.userMainSelectList */
+		<![CDATA[
+      	     SELECT  
+				  PT_SEQ 									ptSeq
+				, PT_TITLE 								ptTitle
+				, PT_CONT								ptCont
+				, DATE_FORMAT(PT_RGST_DT,'%Y.%m.%d') ptRgstDt
+				, F_USER_NM(PT_RGST_ID) ptRgstId
+				, PT_ATCH_FILE_ID 				ptAtchFileId
+				, PT_VIEW 								ptView
+				, PT_SELECT 								ptSelect
+				
+		     FROM t_kim_port 
+			 WHERE PT_USE_YN='Y'	
+			 	AND PT_SELECT 		= #{schEtc02}
+	    		ORDER BY PT_SEQ DESC
+				LIMIT 3
+		]]>
+	</select>	
+
+
+
+	<select id="selectCount" parameterType="cmmnDefaultVO" resultType="int">
+		/* Port.selectCount */
+		<![CDATA[
+			SELECT 
+				COUNT(PT_SEQ) 		cnt 
+				
+			FROM t_kim_port
+			WHERE PT_USE_YN='Y' 
+		]]>
+			 <include refid="Where"/>
+	</select>
+	
+<!-- 	사용자 -->
+	<select id="userSelectCount" parameterType="cmmnDefaultVO" resultType="int">
+		/* Port.userSelectCount */
+		<![CDATA[
+			SELECT 
+				COUNT(PT_SEQ) 		cnt 
+				
+			FROM t_kim_port
+			WHERE PT_USE_YN='Y' 
+			AND PT_SELECT 		= #{schEtc02}
+			
+		]]>
+	</select>
+	
+	<insert id="insertContents" parameterType="portVO">
+		/* Port.insertContents */
+		<![CDATA[
+			INSERT INTO t_kim_port(
+           	  	  PT_SEQ 
+				, PT_TITLE 
+				, PT_CONT
+				, PT_RGST_ID 
+				, PT_ATCH_FILE_ID 
+				, PT_VIEW
+				, PT_SELECT 										
+			)
+			VALUES (
+				 (SELECT IFNULL(MAX(TS.PT_SEQ)+1,1) FROM t_kim_port TS)
+				,#{ptTitle}
+				,#{ptCont}
+				,#{loginSeq}
+				,#{ptAtchFileId}
+				,0
+				,#{ptSelect}
+			)
+		]]>
+	</insert>
+	
+	<update id="updateContents" parameterType="portVO">
+		/* Port.updateContents */
+		<![CDATA[
+			UPDATE t_kim_port     
+			 SET 
+				  PT_TITLE 							= #{ptTitle} 
+				, PT_CONT 							= #{ptCont}
+				, PT_RVSE_DT 					= NOW()
+				, PT_ATCH_FILE_ID			= #{ptAtchFileId}
+				, PT_SELECT 						= #{ptSelect}				
+				
+			WHERE  PT_SEQ = #{ptSeq}  
+		]]>
+	</update>
+<!-- 	조회수 -->
+	<update id="viewCount" parameterType="portVO">
+		/* Port.viewCount */
+		<![CDATA[
+			UPDATE t_kim_port     
+			 SET 
+				  PT_VIEW 							= PT_VIEW+1 
+				
+			WHERE  PT_SEQ = #{ptSeq}  
+		]]>
+	</update>
+	
+	<update id="deleteContents" parameterType="portVO">
+		/* Port.deleteContents */
+		<![CDATA[
+			UPDATE t_kim_port
+		       SET
+	          	 PT_USE_YN			='N'
+			WHERE PT_SEQ				=#{ptSeq}
+		]]>
+	</update>
+
+
+	
+	
+	
+	
+</mapper>

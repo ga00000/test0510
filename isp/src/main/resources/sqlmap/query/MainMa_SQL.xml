@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.open.MainMa">
+
+	<sql id="Where">
+		<if test="searchKeyword !=null and searchKeyword !=''">
+			<if test="searchCondition !=null and searchCondition !='' and searchCondition ==0">
+				AND (MM_TITLE LIKE CONCAT('%',#{searchKeyword},'%') OR MM_CONT like CONCAT('%',#{searchKeyword},'%'))
+			</if>
+			<if test="searchCondition !=null and searchCondition !='' and searchCondition ==1">
+				AND MM_TITLE LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+			<if test="searchCondition !=null and searchCondition !='' and searchCondition ==2">
+				AND MM_CONT LIKE CONCAT('%',#{searchKeyword},'%')
+			</if>
+	 	</if>
+	</sql>
+	
+	<select id="selectContents" parameterType="mainMaVO" resultType="mainMaVO">
+		/* MainMa.selectContents */
+		<![CDATA[
+			 SELECT  
+				 MM_TITLE 											mmTitle
+				, MM_CONT									 		mmCont
+				, DATE_FORMAT(MM_RGST_DT,'%Y.%m.%d') mmRgstDt
+				, F_USER_NM(MM_RGST_ID) 			mmRgstId
+				, MM_ATCH_FILE_ID 							mmAtchFileId
+				, MM_REPRESENT 								mmRepresent
+				, MM_ADDRESS 									mmAddress
+				, MM_OP_NUM 										mmOpNum
+				, MM_NUM 												mmNum
+				, MM_FAX 												mmFax
+				, MM_EMAIL 											mmEmail
+				, MM_SEQ 											mmSeq
+				
+		     FROM  t_kim_mainma 
+			 WHERE  MM_USE_YN		='Y'	
+		]]>
+	</select>
+	
+	
+	
+	<select id="selectList" parameterType="cmmnDefaultVO" resultType="mainMaVO">
+		/* MainMa.selectList */
+		<![CDATA[
+      	     SELECT  
+				  MM_SEQ 												mmSeq
+				, MM_TITLE 											mmTitle
+				, MM_CONT											mmCont
+				, DATE_FORMAT(MM_RGST_DT,'%Y.%m.%d') mmRgstDt
+				, F_USER_NM(MM_RGST_ID) 			mmRgstId
+				, MM_ATCH_FILE_ID 							mmAtchFileId
+				, MM_REPRESENT 								mmRepresent
+				, MM_ADDRESS 									mmAddress
+				, MM_OP_NUM 										mmOpNum
+				, MM_NUM 												mmNum
+				, MM_FAX 												mmFax
+				, MM_EMAIL 											mmEmail
+				
+		     FROM t_kim_mainma 
+			 WHERE MM_USE_YN='Y'	
+	      ]]>
+		     <include refid="Where"/>	 
+	     <![CDATA[ 
+	    		ORDER BY MM_SEQ DESC
+				LIMIT  #{firstIndex} , #{recordCountPerPage}
+		]]>
+	</select>	
+
+
+	<select id="selectCount" parameterType="cmmnDefaultVO" resultType="int">
+		/* MainMa.selectCount */
+		<![CDATA[
+			SELECT 
+				COUNT(MM_SEQ) 		cnt 
+				
+			FROM t_kim_mainma
+			WHERE MM_USE_YN='Y' 
+		]]>
+			 <include refid="Where"/>
+	</select>
+	
+	<insert id="insertContents" parameterType="mainMaVO">
+		/* MainMa.insertContents */
+		<![CDATA[
+			INSERT INTO t_kim_mainma(
+           	  	  MM_SEQ 
+				, MM_TITLE 
+				, MM_CONT
+				, MM_RGST_ID 
+				, MM_ATCH_FILE_ID 
+				, MM_REPRESENT 								
+				, MM_ADDRESS 									
+				, MM_OP_NUM 										
+				, MM_NUM 												
+				, MM_FAX 												
+				, MM_EMAIL 											
+			)
+			VALUES (
+				 (SELECT IFNULL(MAX(TS.MM_SEQ)+1,1) FROM t_kim_mainma TS)
+				,#{mmTitle}
+				,#{mmCont}
+				,#{loginSeq}
+				,#{mmAtchFileId}
+				,#{mmRepresent}
+				,#{mmAddress}
+				,#{mmOpNum}
+				,#{mmNum}
+				,#{mmFax}
+				,#{mmEmail}
+			)
+		]]>
+	</insert>
+	
+	<update id="updateContents" parameterType="mainMaVO">
+		/* MainMa.updateContents */
+		<![CDATA[
+			UPDATE t_kim_mainma     
+			 SET 
+				  MM_TITLE 							= #{mmTitle} 
+				, MM_CONT 							= #{mmCont}
+				, MM_RVSE_DT 					= NOW()
+				, MM_ATCH_FILE_ID			= #{mmAtchFileId}
+				, MM_REPRESENT 				= #{mmRepresent}				
+				, MM_ADDRESS 					= #{mmAddress}				
+				, MM_OP_NUM 						= #{mmOpNum}				
+				, MM_NUM 								= #{mmNum}				
+				, MM_FAX 								= #{mmFax}				
+				, MM_EMAIL 							= #{mmEmail}				
+			WHERE MM_SEQ   = #{mmSeq}		
+		]]>
+	</update>
+
+	
+	<update id="deleteContents" parameterType="mainMaVO">
+		/* MainMa.deleteContents */
+		<![CDATA[
+			UPDATE t_kim_mainma
+		       SET
+	          	 MM_USE_YN			='N'
+			WHERE MM_SEQ				=#{mmSeq}
+		]]>
+	</update>
+
+
+	
+	
+	
+	
+</mapper>
